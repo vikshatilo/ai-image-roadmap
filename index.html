@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102b59">
+<title>Дорожня карта — Генерація та редагування зображень за допомогою ШІ</title>
+<style>
+:root{--navy:#102b59;--blue:#1d56a5;--blue2:#2c79c7;--sky:#eaf4ff;--yellow:#ffd34e;--ink:#173052;--muted:#60748e;--white:#fff;--line:#d8e5f3;--green:#16845b}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:#f4f8fd;color:var(--ink);line-height:1.6}
+header{background:linear-gradient(125deg,#102b59 0%,#1d56a5 65%,#2c79c7 100%);color:#fff;padding:28px 20px 42px;position:relative;overflow:hidden}
+header:after{content:"✦";position:absolute;right:7%;top:-45px;font-size:240px;color:#ffd34e22;transform:rotate(15deg)}
+.wrap{max-width:1120px;margin:auto;position:relative;z-index:1}
+.kicker{color:var(--yellow);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.8rem}
+h1{font-size:clamp(2rem,5vw,3.55rem);line-height:1.08;margin:12px 0;max-width:850px}
+header p{max-width:760px;color:#e3efff;font-size:1.08rem}
+.pills{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}.pill{border:1px solid #ffffff55;border-radius:999px;padding:6px 13px;font-size:.88rem;color:#fff}
+nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;box-shadow:0 4px 16px #16365b0b}
+nav .wrap{display:flex;gap:6px;overflow:auto;padding:10px 14px}nav a{white-space:nowrap;text-decoration:none;color:var(--blue);font-weight:700;padding:8px 12px;border-radius:10px;font-size:.9rem}nav a:hover{background:var(--sky)}
+main{max-width:1120px;margin:28px auto;padding:0 18px}
+section{margin:28px 0;scroll-margin-top:82px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:15px}h2{font-size:1.65rem;color:var(--navy);margin:0}h3{margin:0 0 8px;color:var(--navy)}.lead{color:var(--muted);margin:4px 0 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 8px 26px #1b46700a}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.info{background:var(--sky);border-left:4px solid var(--yellow);padding:14px 16px;border-radius:10px;margin:14px 0}
+.step-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.step{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;transition:.2s}
+.step.done{border-color:#9bd8bf;background:#f3fcf8}.num{flex:0 0 40px;height:40px;border-radius:13px;background:var(--navy);color:var(--yellow);display:grid;place-items:center;font-weight:900;font-size:1.05rem}
+.step.done .num{background:var(--green);color:#fff}.step p{margin:4px 0 9px;color:var(--muted);font-size:.94rem}
+.check{display:flex;gap:8px;align-items:center;font-size:.88rem;font-weight:700;color:var(--blue);cursor:pointer}.check input{width:18px;height:18px;accent-color:var(--green)}
+.progressbox{background:#e5eef8;border-radius:999px;height:12px;overflow:hidden;margin:12px 0 7px}.progressbar{height:100%;width:0;background:linear-gradient(90deg,#1d56a5,#20a477);transition:width .25s}
+.progressrow{display:flex;justify-content:space-between;gap:10px;font-size:.9rem;font-weight:700;color:var(--navy)}
+label{font-weight:700;font-size:.92rem;color:var(--navy);display:block;margin:10px 0 5px}
+input[type=text],textarea,select{width:100%;border:1px solid #c8d8e9;border-radius:10px;padding:11px 12px;font:inherit;color:var(--ink);background:#fff}
+textarea{min-height:80px;resize:vertical}
+button{border:0;border-radius:11px;padding:11px 16px;font:inherit;font-weight:800;cursor:pointer;background:var(--blue);color:#fff}
+button:hover{filter:brightness(1.08)}button.secondary{background:#e8f1fc;color:var(--blue)}button.yellow{background:var(--yellow);color:#173052}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}.output{background:#102b59;color:#fff;padding:16px;border-radius:12px;white-space:pre-wrap;min-height:90px;margin-top:12px;font-size:.95rem}
+.tag{display:inline-block;background:#fff2c2;color:#705100;border-radius:7px;padding:3px 8px;font-size:.78rem;font-weight:800}
+.mini{font-size:.9rem;color:var(--muted)}.criteria{list-style:none;padding:0;margin:0}.criteria li{padding:9px 0;border-bottom:1px solid var(--line)}.criteria li:last-child{border:0}
+footer{background:var(--navy);color:#dceaff;padding:28px 18px;margin-top:45px;text-align:center}footer strong{color:var(--yellow)}
+details{border:1px solid var(--line);border-radius:12px;padding:13px 15px;background:#fff;margin:9px 0}summary{cursor:pointer;font-weight:800;color:var(--blue)}
+@media(max-width:760px){.grid,.grid3,.step-list{grid-template-columns:1fr}.card{padding:17px}.section-head{display:block}header{padding-top:24px}}
+@media print{nav,.actions,button{display:none!important}body{background:#fff}.card,.step{box-shadow:none;break-inside:avoid}header{background:#102b59!important;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="kicker">Вибірковий курс «ШІ і суспільство» · 10 клас</div>
+<h1>Від ідеї до зображення:<br>твоя дорожня карта роботи з ШІ</h1>
+<p>Створи візуал для шкільної ініціативи, навчися керувати генерацією, редагувати результат і відповідально використовувати штучний інтелект.</p>
+<div class="pills"><span class="pill">🎨 Генерація</span><span class="pill">✍️ Промптинг</span><span class="pill">🛠️ Редагування</span><span class="pill">🛡️ Безпека</span></div>
+</div></header>
+<nav><div class="wrap"><a href="#start">Старт</a><a href="#route">8 кроків</a><a href="#prompt">Конструктор промпту</a><a href="#quality">Перевірка</a><a href="#submit">Здача роботи</a></div></nav>
+<main>
+<section id="start">
+<div class="section-head"><div><h2>Твоя місія</h2><p class="lead">Мініпроєкт «ШІ — мій творчий помічник»</p></div><span class="tag">Практична робота · 18–20 хв</span></div>
+<div class="grid">
+<div class="card"><h3>Що потрібно створити?</h3><p>Візуальне зображення для корисної шкільної ініціативи. Обери тему, яка має зрозумілу мету й конкретну аудиторію.</p>
+<ul><li>Кібербезпека та цифрова гігієна</li><li>Екологія й енергоощадність</li><li>Медіаграмотність</li><li>STEM-подія або науковий захід</li></ul></div>
+<div class="card"><h3>Підсумковий результат</h3><ul><li>Початкове згенероване зображення</li><li>Відредагована версія</li><li>Промпт, який ти використав/ла</li><li>Коротке пояснення внесених змін</li><li>Позначення використання ШІ</li></ul><div class="info"><strong>Пам’ятай:</strong> оцінюється не лише краса зображення, а й твої рішення, критичність і відповідальність.</div></div>
+</div>
+</section>
+<section id="route">
+<div class="section-head"><div><h2>Дорожня карта: 8 кроків</h2><p class="lead">Позначай виконані етапи. Прогрес зберігається у цьому браузері.</p></div></div>
+<div class="card" style="margin-bottom:15px"><div class="progressrow"><span>Виконання роботи</span><span id="progressText">0 із 8 кроків</span></div><div class="progressbox"><div class="progressbar" id="progressBar"></div></div><div class="mini" id="progressHint">Почни з визначення мети та аудиторії.</div></div>
+<div class="step-list" id="steps">
+<article class="step" data-step="1"><div class="num">01</div><div><h3>Визнач мету й аудиторію</h3><p>Обери тему ініціативи. Подумай, кому адресоване зображення та яку думку або дію воно має викликати.</p><label class="check"><input type="checkbox"> Крок виконано</label></div></article>
+<article class="step" data-step="2"><div class="num">02</div><div><h3>Склади технічне завдання</h3><p>Опиши головний об’єкт, дію, середовище, стиль, палітру, формат і деталі, яких потрібно уникнути.</p><label class="check"><input type="checkbox"> Крок виконано</label></div></article>
+<article class="step" data-step="3"><div class="num">03</div><div><h3>Напиши промпт</h3><p>Використай конструктор нижче. Формулюй конкретно: що зобразити, як розмістити й у якому стилі виконати.</p><label class="check"><input type="checkbox"> Крок виконано</label></div></article>
+<article class="step" data-step="4"><div class="num">04</div><div><h3>Згенеруй кілька варіантів</h3><p>Якщо сервіс дозволяє, створи 2–4 варіанти. Порівняй їх за відповідністю завданню, а не лише за ефектністю.</p><label class="check"><input type="checkbox"> Крок виконано</label></div></article>
+<article class="step" data-step="5"><div class="num">05</div><div><h3>Проведи критичний аудит</h3><p>Знайди неправильні деталі, зайві об’єкти, спотворення, випадкові написи, стереотипи або невідповідність задуму.</p><label class="check"><input type="checkbox"> Крок виконано</label></div></article>
+<article class="step" data-step="6"><div class="num">06</div><div><h3>Відредагуй зображення</h3><p>Зміни фон, окремий об’єкт, освітлення чи композицію. Вкажи, що потрібно змінити, а що залишити незмінним.</p><label class="check"><input type="checkbox"> Крок виконано</label></div></article>
+<article class="step" data-step="7"><div class="num">07</div><div><h3>Перевір і збережи</h3><p>Переглянь зображення у повному розмірі. Переконайся, що воно зрозуміле, доречне й не містить небажаних деталей. Експортуй PNG або JPG.</p><label class="check"><input type="checkbox"> Крок виконано</label></div></article>
+<article class="step" data-step="8"><div class="num">08</div><div><h3>Додай атрибуцію</h3><p>Зазнач сервіс, дату, мету використання та ключовий промпт/редагування — відповідно до вимог учителя.</p><label class="check"><input type="checkbox"> Крок виконано</label></div></article>
+</div>
+</section>
+<section id="prompt">
+<div class="section-head"><div><h2>Конструктор промпту</h2><p class="lead">Заповни поля — сайт збере їх у цілісний запит.</p></div></div>
+<div class="card">
+<div class="grid">
+<div><label for="kind">Тип зображення</label><select id="kind"><option>Ілюстрація</option><option>Плакатна ілюстрація</option><option>3D-рендер</option><option>Фотореалістичне зображення</option><option>Інфографічний візуал без тексту</option></select></div>
+<div><label for="audience">Мета й аудиторія</label><input id="audience" type="text" placeholder="Наприклад: постер для учнів ліцею про кібербезпеку"></div>
+<div><label for="subject">Головний об’єкт і дія</label><input id="subject" type="text" placeholder="Наприклад: підліток захищає свій цифровий профіль"></div>
+<div><label for="scene">Тло / середовище</label><input id="scene" type="text" placeholder="Наприклад: сучасний цифровий простір"></div>
+<div><label for="composition">Композиція й ракурс</label><input id="composition" type="text" placeholder="Наприклад: центральна композиція, середній план"></div>
+<div><label for="style">Стиль</label><select id="style"><option>Сучасна цифрова ілюстрація</option><option>Плаский векторний стиль (flat design)</option><option>Ізометрична 3D-ілюстрація</option><option>М’який 3D-мультстиль</option><option>Акварельна ілюстрація</option><option>Фотореалізм</option><option>Комікс</option></select></div>
+<div><label for="colors">Палітра кольорів</label><input id="colors" type="text" value="синя та жовта палітра"></div>
+<div><label for="format">Формат кадру</label><select id="format"><option>Вертикальний 4:5</option><option>Квадратний 1:1</option><option>Широкий 16:9</option><option>Вертикальний 9:16</option></select></div>
+</div>
+<label for="avoid">Обмеження: чого уникати?</label><textarea id="avoid" placeholder="Наприклад: без написів, логотипів, водяних знаків, зайвих об’єктів і спотворених рук"></textarea>
+<div class="actions"><button class="yellow" id="build">Зібрати промпт</button><button class="secondary" id="copy">Копіювати промпт</button><button class="secondary" id="clear">Очистити поля</button></div>
+<div class="output" id="promptOutput" aria-live="polite">Тут з’явиться готовий промпт. Заповни поля та натисни «Зібрати промпт».</div>
+<p class="mini">Порада: промпт можна уточнювати кілька разів. За одну ітерацію змінюй 1–2 параметри, щоб розуміти, що саме вплинуло на результат.</p>
+</div>
+</section>
+<section id="quality">
+<div class="section-head"><div><h2>Контроль якості та безпеки</h2><p class="lead">Перед збереженням постав собі ці запитання.</p></div></div>
+<div class="grid">
+<div class="card"><h3>Якість зображення</h3><ul class="criteria"><li>☐ Зображення відповідає меті й аудиторії.</li><li>☐ Головна ідея читається з першого погляду.</li><li>☐ Немає випадкових написів і зайвих об’єктів.</li><li>☐ Перевірено руки, обличчя, перспективу й тіні.</li><li>☐ Композиція та кольори узгоджені.</li></ul></div>
+<div class="card"><h3>Етичність і приватність</h3><ul class="criteria"><li>☐ Не використано персональні дані.</li><li>☐ Не завантажено приватні фото без згоди.</li><li>☐ Зображення не принижує та не вводить в оману.</li><li>☐ Перевірено права на вихідні матеріали.</li><li>☐ Використання ШІ буде зазначено.</li></ul></div>
+</div>
+<div class="info"><strong>Важливо!</strong> Не створюй фальшиві зображення реальних людей для введення в оману. Не сприймай реалістичне зображення як доказ реальної події: синтетичний контент може містити помилки.</div>
+<details><summary>Що робити, якщо результат невдалий?</summary><p>Уточни конкретну проблему: «залиши композицію, але прибери зайві предмети»; «зміни лише фон»; «зроби головний об’єкт чіткішим». Якщо є інструмент виділення області, познач саме ту ділянку, яку потрібно змінити.</p></details>
+<details><summary>Що таке inpainting та outpainting?</summary><p><strong>Inpainting</strong> — редагування вибраної частини зображення. <strong>Outpainting</strong> — розширення зображення за межі початкового кадру з домальовуванням нового простору.</p></details>
+</section>
+<section id="submit">
+<div class="section-head"><div><h2>Підготуй роботу до здачі</h2><p class="lead">Переконайся, що всі матеріали зібрані.</p></div></div>
+<div class="card">
+<h3>Що має бути у твоїй папці?</h3>
+<div class="grid">
+<div><p>📁 <strong>Практична_робота_Прізвище</strong></p><ul><li>01_Початкове_зображення.png</li><li>02_Відредаговане_зображення.png</li><li>03_Промпт_і_аналіз.txt або .docx</li></ul></div>
+<div><h3>Короткий звіт</h3><label for="report1">Тема й мета</label><input id="report1" type="text" placeholder="Моя робота про..."><label for="report2">Що змінив/ла після першої генерації?</label><textarea id="report2" placeholder="Я помітив/ла..., тому попросив/ла ШІ..."></textarea><label for="report3">Яку помилку або артефакт виправив/ла?</label><input id="report3" type="text" placeholder="Наприклад: зайвий об’єкт на фоні"></div>
+</div>
+<div class="actions"><button id="downloadReport">Завантажити звіт (.txt)</button><button class="secondary" onclick="window.print()">Друкувати дорожню карту</button></div>
+</div>
+</section>
+<section>
+<div class="section-head"><div><h2>Самооцінювання</h2><p class="lead">Оціни результат за критеріями — максимум 15 балів.</p></div></div>
+<div class="card grid">
+<div><h3>Критерії</h3><ul class="criteria"><li>Відповідність меті й аудиторії — <strong>0–3 бали</strong></li><li>Якість і конкретність промпту — <strong>0–3 бали</strong></li><li>Осмислене редагування — <strong>0–3 бали</strong></li><li>Критична перевірка — <strong>0–3 бали</strong></li><li>Безпека й атрибуція — <strong>0–3 бали</strong></li></ul></div>
+<div><h3>Вихідний квиток</h3><p>1. Який елемент промпту найбільше вплинув на результат?</p><p>2. Яку помилку ШІ ти помітив/ла й виправив/ла?</p><p>3. Як повідомиш глядачеві, що зображення створене за допомогою ШІ?</p><div class="info">Головний висновок: людина визначає мету й відповідає за результат, а ШІ допомагає втілити задум.</div></div>
+</div>
+</section>
+</main>
+<footer><div class="wrap"><strong>ШІ і суспільство · 10 клас</strong><br>Навчайся створювати. Перевіряй критично. Використовуй відповідально.</div></footer>
+<script>
+const checks=[...document.querySelectorAll('.step input[type=checkbox]')];
+const key='ai-image-roadmap-progress-v1';
+function update(){
+ let done=0; checks.forEach((c,i)=>{const card=c.closest('.step');card.classList.toggle('done',c.checked);if(c.checked)done++});
+ document.getElementById('progressText').textContent=`${done} із ${checks.length} кроків`;
+ document.getElementById('progressBar').style.width=(done/checks.length*100)+'%';
+ document.getElementById('progressHint').textContent=done===8?'Чудово! Усі етапи виконано — перевір фінальний комплект.':done===0?'Почни з визначення мети та аудиторії.':`Залишилося виконати ${checks.length-done} крок(ів). Продовжуй!`;
+ try{localStorage.setItem(key,JSON.stringify(checks.map(c=>c.checked)))}catch(e){}
+}
+try{const saved=JSON.parse(localStorage.getItem(key)||'[]');checks.forEach((c,i)=>c.checked=!!saved[i])}catch(e){}
+checks.forEach(c=>c.addEventListener('change',update));update();
+function val(id){return document.getElementById(id).value.trim()}
+function buildPrompt(){
+ const parts=[
+ `Створи ${val('kind').toLowerCase()} для ${val('audience')||'[мета й аудиторія]'}.`,
+ `У центрі зображення — ${val('subject')||'[головний об’єкт і дія]'}.`,
+ `Середовище: ${val('scene')||'[тло]'}.`,
+ `Композиція: ${val('composition')||'[композиція й ракурс]'}.`,
+ `Стиль: ${val('style').toLowerCase()}.`,
+ `Палітра: ${val('colors')||'[кольори]'}.`,
+ `Формат: ${val('format')}.`,
+ `Обмеження: ${val('avoid')||'без випадкових написів, логотипів і водяних знаків'}.`
+ ];
+ document.getElementById('promptOutput').textContent=parts.join(' ');
+}
+document.getElementById('build').addEventListener('click',buildPrompt);
+document.getElementById('copy').addEventListener('click',async()=>{const t=document.getElementById('promptOutput').textContent;try{await navigator.clipboard.writeText(t);document.getElementById('copy').textContent='Скопійовано!';setTimeout(()=>document.getElementById('copy').textContent='Копіювати промпт',1600)}catch(e){alert('Не вдалося скопіювати автоматично. Виділи текст промпту та скопіюй його вручну.')}});
+document.getElementById('clear').addEventListener('click',()=>{['audience','subject','scene','composition','avoid'].forEach(id=>document.getElementById(id).value='');document.getElementById('promptOutput').textContent='Тут з’явиться готовий промпт.'});
+document.getElementById('downloadReport').addEventListener('click',()=>{
+ const txt=`ЗВІТ ДО ПРАКТИЧНОЇ РОБОТИ\nТема й мета: ${val('report1')}\nЩо змінив/ла після першої генерації: ${val('report2')}\nЯку помилку або артефакт виправив/ла: ${val('report3')}\n\nПромпт:\n${document.getElementById('promptOutput').textContent}\n\nСервіс і дата використання: __________________________\n`;
+ const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Звіт_практична_робота_ШІ.txt';a.click();URL.revokeObjectURL(a.href);
+});
+</script>
+</body></html>
